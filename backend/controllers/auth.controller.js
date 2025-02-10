@@ -1,5 +1,7 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs"
+import generateToken from "../utils/generateToken.js";
+
 export const Signup = async (req,res)=>{
     try {
 
@@ -36,6 +38,7 @@ export const Signup = async (req,res)=>{
 
         if(newUser)
         {
+            generateToken(newUser._id,res);
             await newUser.save();
             res.status(200).json({message:"user Created Succesfully"});
         }
@@ -51,10 +54,48 @@ export const Signup = async (req,res)=>{
     }
 }
 
-export const Login = (req,res)=>{
-    res.send("LOGIN PAGE LOADING.....")
+export const Login = async (req,res)=>{
+    try {
+        const {username,password} = req.body;
+        const user = await User.findOne({username});
+        const isExistingpass = await bcrypt.compare(password,user?.password || " ");
+
+        if(!user || !isExistingpass)
+        {
+            return res.status(400).json({error:"Invalid Username or Password"});
+        }
+
+        generateToken(user._id,res);
+
+        return res.status(200).json({
+            message : "User connected to dashboard"
+        })
+    } catch (error) {
+        console.log(`Error in the login ${error}`);
+        return res.status(500).json({error:"Internal Server Error"});
+            
+    }
+
 }
 
 export const Logout = (req,res)=>{
-    res.send("LOGout PAGE LOADING.....")
+    try {
+        res.cookie("jwt"," ",{maxAge: 0})
+        return res.status(200).json({message:"User logged out sucessfully"});
+        
+    } catch (error) {
+        console.log(`Error in the logout ${error}`);
+        return res.status(500).json({error:"Internal Server Error"});
+    }
+}
+
+export const Getme = async (req,res)=>{
+    try {
+        const user = await User.findOne({_id : req.user._id}).select("-password");
+        res.status(200).json(user);
+        
+    } catch (error) {
+        console.log(`Error in the Getme ${error}`);
+        res.status(500).json({error:"Internal Server Error"});
+    }
 }
