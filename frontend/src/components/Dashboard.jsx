@@ -1,26 +1,27 @@
 import React from 'react';
 import { LogIn, Sparkles, Shield, Users } from 'lucide-react';
-
+import { Link } from 'react-router-dom';
 function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center">
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            Welcome to <span className="text-indigo-600">AppName</span>
+            Welcome to <span className="text-indigo-600">Authentication</span>
           </h1>
           <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
-            Join our community of creators and innovators. Sign in to get started on your journey.
+            Authenticate Yourself
           </p>
           
           <div className="flex justify-center mb-12">
+            <Link to="/signup">
             <button
-              onClick={() => window.location.href = '/signup'}
               className="inline-flex items-center px-6 py-3 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors duration-200 shadow-lg hover:shadow-xl"
             >
               <LogIn className="w-5 h-5 mr-2" />
               Sign Up to Continue
             </button>
+            </Link>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -67,12 +68,13 @@ function Home() {
               >
                 Create Account
               </button>
+              <Link to='/login'>
               <button
-                onClick={() => window.location.href = '/login'}
                 className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200"
               >
                 Log In
               </button>
+              </Link>
             </div>
           </div>
         </div>
