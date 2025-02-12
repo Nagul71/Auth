@@ -6,8 +6,7 @@ import toast from "react-hot-toast";
 export default function Login() {
 
     const [formData,setFormData] = useState({
-            username:"",
-            password:"",
+            email:"",
         });
 
         const queryClient = useQueryClient();
@@ -56,50 +55,32 @@ export default function Login() {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-2000 text-white">
         <div className="w-full max-w-md bg-gray-800 p-8 rounded-lg shadow-lg">
-          <h2 className="text-3xl font-semibold text-center mb-6">Login</h2>
+          <h2 className="text-3xl font-semibold text-center mb-6">Forgot Password</h2>
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-sm mb-1">User Name</label>
+              <label className="block text-sm mb-1">Email</label>
               <input
-                type="text"
+                type="email"
                 className="w-full p-2 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your username"
-                name="username"
+                placeholder="Enter Your Email"
+                name="email"
                 onChange={handleInputChange}
-                value={formData.username}
-              />
-            </div>
-            <div>
-              <label className="block text-sm mb-1">Password</label>
-              <input
-                type="password"
-                className="w-full p-2 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your password"
-                name="password"
-                onChange={handleInputChange}
-                value={formData.password}
+                value={formData.email}
               />
             </div>
             <p className="text-sm text-left mt-4">
-            <Link to='/forgot-password'className="text-blue-400 hover:underline">
-            Forgot Password
+            <Link to='/login'className="text-blue-400 hover:underline">
+            Back
             </Link>
           </p>
-          
             <button
               type="submit"
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded mt-4 transition"
+              className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded mt-4 transition"
             >
-              {isPending ? "Loading..." : "Login"}
+              {isPending ? "Loading..." : "Send"}
             </button>
             {isError && <p className='text-red-500'>{error.message}</p>}
           </form>
-          <p className="text-sm text-center mt-4">
-            Don't have an account?{" "}
-            <Link to='/signup'className="text-blue-400 hover:underline">
-              Sign up
-            </Link>
-          </p>
         </div>
       </div>
     );

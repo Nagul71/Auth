@@ -6,6 +6,7 @@ import Login from './components/Login'
 import Signup from './components/signup'
 import { Toaster } from 'react-hot-toast'
 import Dashboard from './components/Dashboard'
+import ForgotPassword from './components/ForgotPassword'
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
     <Route path="/" element={<Dashboard/>}/>
       <Route path="/login" element={<Login/>}/>
       <Route path="/signup" element={<Signup/>}/>
+      <Route path="/forgot-password" element={<ForgotPassword/>}/>
     </Routes>
     <Toaster
     position="top-center"
