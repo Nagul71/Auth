@@ -7,6 +7,7 @@ import Signup from './components/signup'
 import { Toaster } from 'react-hot-toast'
 import Dashboard from './components/Dashboard'
 import ForgotPassword from './components/ForgotPassword'
+import ResetPassword from './components/ResetPassword'
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
     <Route path="/" element={<Signup/>}/>
       <Route path="/login" element={<Login/>}/>
       <Route path="/forgot-password" element={<ForgotPassword/>}/>
+      <Route path="/reset-password/:token" element={<ResetPassword/>}/>
     </Routes>
     <Toaster
     position="top-center"

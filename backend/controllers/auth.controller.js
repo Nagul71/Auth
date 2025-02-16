@@ -1,6 +1,11 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs"
 import generateToken from "../utils/generateToken.js";
+import nodemailer from "nodemailer"
+import crypto from "crypto"
+import dotenv from "dotenv";
+dotenv.config();
+
 
 export const Signup = async (req,res)=>{
     try {
@@ -22,7 +27,7 @@ export const Signup = async (req,res)=>{
 
         if(password.length < 6)
         {
-            res.status(400).json({error:"Password is not correclty configured"});
+            res.status(400).json({error:"password is not correclty configured"});
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -62,7 +67,7 @@ export const Login = async (req,res)=>{
 
         if(!user || !isExistingpass)
         {
-            return res.status(400).json({error:"Invalid Username or Password"});
+            return res.status(400).json({error:"Invalid Username or password"});
         }
 
         generateToken(user._id,res);
@@ -116,8 +121,8 @@ export const Forgot = async (req, res) => {
         const hashedToken = await bcrypt.hash(resetToken, 10); // Hashing the token
 
         // Store hashed token in DB with expiry time (1 hour)
-        user.resetPasswordToken = hashedToken;
-        user.resetPasswordExpires = Date.now() + 3600000;
+        user.resetpasswordToken = hashedToken;
+        user.resetpasswordExpires = Date.now() + 3600000;
         await user.save();
 
         // Configure email transporter securely
@@ -129,23 +134,57 @@ export const Forgot = async (req, res) => {
             },
         });
 
-        // Generate a secure password reset link
-        const resetLink = `http://your-frontend.com/reset-password?token=${resetToken}`;
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-        // Send email
         const mailOptions = {
             to: email,
-            subject: "Password Reset Request",
-            html: `<p>You requested a password reset. Click <a href="${resetLink}">here</a> to reset your password.</p>
-                   <p>This link is valid for 1 hour.</p>`,
+            subject: "password Reset Request",
+            html: `
+                <p>You requested a password reset.</p>
+                <p>Click <a href="${resetLink}" target="_blank" style="color: blue; text-decoration: underline;">here</a> to reset your password.</p>
+                <p>This link is valid for 1 hour.</p>
+            `,
         };
+
 
         // Attempt to send email
         await transporter.sendMail(mailOptions);
 
-        res.status(200).json({ message: "Password reset link sent to email" });
+        res.status(200).json({ message: "password reset link sent to email" });
     } catch (error) {
-        console.error(`Error in Forgot Password: ${error}`);
+        console.error(`Error in Forgot password: ${error}`);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+export const Reset = async (req, res) => {
+    try {
+        const {token,password } = req.body;
+
+        if (!token || !password) {
+            return res.status(400).json({ error: "Token and new password are required" });
+        }
+
+        // Find user with matching reset token & check expiration
+        const user = await User.findOne({ resetpasswordToken: token, resetpasswordExpires: { $gt: Date.now() } });
+
+        if (!user) {
+            return res.status(400).json({ error: "Invalid or expired token" });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Update password in database
+        user.password = hashedPassword;
+        user.resetpasswordToken = undefined; // Clear the reset token
+        user.resetpasswordExpires = undefined; // Clear the expiration
+        await user.save();
+
+        res.status(200).json({ message: "Password reset successfully" });
+    } catch (error) {
+        console.error(`Error in Reset password: ${error}`);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
