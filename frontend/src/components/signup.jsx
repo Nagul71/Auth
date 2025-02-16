@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 export default function Signup() {
+  const navigate = useNavigate();
 
     const [formData,setFormData] = useState({
         email:"",
@@ -34,6 +36,7 @@ export default function Signup() {
 			}
         },
         onSuccess: () => {
+          navigate('/Dashboard')
 			toast.success("Account created successfully");
 
 			{

@@ -15,9 +15,9 @@ function App() {
   return (
     <>
     <Routes>
-    <Route path="/" element={<Dashboard/>}/>
+    <Route path="/Dashboard" element={<Dashboard/>}/>
+    <Route path="/" element={<Signup/>}/>
       <Route path="/login" element={<Login/>}/>
-      <Route path="/signup" element={<Signup/>}/>
       <Route path="/forgot-password" element={<ForgotPassword/>}/>
     </Routes>
     <Toaster

@@ -20,7 +20,7 @@ export const Signup = async (req,res)=>{
             return res.status(400).json({erro:"User Already Existing"});
         }
 
-        if(password < 6)
+        if(password.length < 6)
         {
             res.status(400).json({error:"Password is not correclty configured"});
         }
@@ -70,6 +70,7 @@ export const Login = async (req,res)=>{
         return res.status(200).json({
             message : "User connected to dashboard"
         })
+
     } catch (error) {
         console.log(`Error in the login ${error}`);
         return res.status(500).json({error:"Internal Server Error"});
@@ -99,3 +100,52 @@ export const Getme = async (req,res)=>{
         res.status(500).json({error:"Internal Server Error"});
     }
 }
+
+export const Forgot = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // Check if user exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Generate a secure reset token
+        const resetToken = crypto.randomBytes(32).toString("hex");
+        const hashedToken = await bcrypt.hash(resetToken, 10); // Hashing the token
+
+        // Store hashed token in DB with expiry time (1 hour)
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = Date.now() + 3600000;
+        await user.save();
+
+        // Configure email transporter securely
+        const transporter = nodemailer.createTransport({
+            service: "Gmail",
+            auth: {
+                user: process.env.EMAIL_USER, // Load from env
+                pass: process.env.EMAIL_PASS, // Load from env
+            },
+        });
+
+        // Generate a secure password reset link
+        const resetLink = `http://your-frontend.com/reset-password?token=${resetToken}`;
+
+        // Send email
+        const mailOptions = {
+            to: email,
+            subject: "Password Reset Request",
+            html: `<p>You requested a password reset. Click <a href="${resetLink}">here</a> to reset your password.</p>
+                   <p>This link is valid for 1 hour.</p>`,
+        };
+
+        // Attempt to send email
+        await transporter.sendMail(mailOptions);
+
+        res.status(200).json({ message: "Password reset link sent to email" });
+    } catch (error) {
+        console.error(`Error in Forgot Password: ${error}`);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};

@@ -2,8 +2,11 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+
+  const navigate = useNavigate();
 
     const [formData,setFormData] = useState({
             email:"",
@@ -17,14 +20,14 @@ export default function Login() {
 		isError,
 		error,
 	} = useMutation({
-		mutationFn: async ({ username, password }) => {
+		mutationFn: async ({email}) => {
 			try {
 				const res = await fetch(`${import.meta.env.VITE_LOCAL_URL}/api/auth/login`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify({ username, password }),
+					body: JSON.stringify({email}),
 				});
 
 				const data = await res.json();
@@ -37,7 +40,7 @@ export default function Login() {
 			}
 		},
 		onSuccess: () => {
-			toast.success("You Logged In Successfully");
+			navigate('/login')
 			queryClient.invalidateQueries({ queryKey: ["authUser"] });
 		},
 	});
@@ -68,11 +71,6 @@ export default function Login() {
                 value={formData.email}
               />
             </div>
-            <p className="text-sm text-left mt-4">
-            <Link to='/login'className="text-blue-400 hover:underline">
-            Back
-            </Link>
-          </p>
             <button
               type="submit"
               className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded mt-4 transition"
