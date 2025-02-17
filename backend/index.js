@@ -8,9 +8,10 @@ import cors from "cors"
 dotenv.config();
 const app = express();
 app.use(cors({
-    origin:"http://localhost:5173",
-    credentials:true,
-}))
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: true,
+}));
+
 
 const PORT = process.env.PORT;
 app.use(express.json());
