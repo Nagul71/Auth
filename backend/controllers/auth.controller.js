@@ -118,10 +118,9 @@ export const Forgot = async (req, res) => {
 
         // Generate a secure reset token
         const resetToken = crypto.randomBytes(32).toString("hex");
-        const hashedToken = await bcrypt.hash(resetToken, 10); // Hashing the token
 
         // Store hashed token in DB with expiry time (1 hour)
-        user.resetpasswordToken = hashedToken;
+        user.resetpasswordToken = resetToken;
         user.resetpasswordExpires = Date.now() + 3600000;
         await user.save();
 
@@ -157,34 +156,52 @@ export const Forgot = async (req, res) => {
     }
 };
 
+
 export const Reset = async (req, res) => {
     try {
-        const {token,password } = req.body;
+        const { token } = req.params;
+        const { password } = req.body;
 
-        if (!token || !password) {
-            return res.status(400).json({ error: "Token and new password are required" });
-        }
-
-        // Find user with matching reset token & check expiration
-        const user = await User.findOne({ resetpasswordToken: token, resetpasswordExpires: { $gt: Date.now() } });
+        const user = await User.findOne({ resetpasswordToken: token });
+        
+        console.log('User search result:', {
+            userFound: !!user,
+            tokenMatches: user?.resetpasswordToken === token,
+            tokenExpiration: user?.resetpasswordExpires,
+            currentTime: new Date(),
+            isExpired: user?.resetpasswordExpires < Date.now()
+        });
 
         if (!user) {
-            return res.status(400).json({ error: "Invalid or expired token" });
+            return res.status(400).json({ 
+                error: "Invalid or expired token",
+                debug: "No user found with this token"
+            });
         }
 
-        // Hash new password
+        if (user.resetpasswordExpires < Date.now()) {
+            return res.status(400).json({ 
+                error: "Invalid or expired token",
+                debug: "Token has expired"
+            });
+        }
+
+        // Continue with password reset...
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Update password in database
         user.password = hashedPassword;
-        user.resetpasswordToken = undefined; // Clear the reset token
-        user.resetpasswordExpires = undefined; // Clear the expiration
+        user.resetpasswordToken = undefined;
+        user.resetpasswordExpires = undefined;
+        
         await user.save();
 
         res.status(200).json({ message: "Password reset successfully" });
     } catch (error) {
-        console.error(`Error in Reset password: ${error}`);
-        return res.status(500).json({ error: "Internal Server Error" });
+        console.error('Reset password error:', error);
+        return res.status(500).json({ 
+            error: "Internal Server Error",
+            details: error.message
+        });
     }
 };

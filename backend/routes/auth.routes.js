@@ -8,7 +8,7 @@ router.post("/signup",Signup)
 router.post("/logout",Logout)
 router.post("/login",Login)
 router.post("/forgot-password",Forgot)
-router.post("/reset-password",Reset)
+router.post("/reset-password/:token",Reset)
 router.get("/me",protectRoute,Getme)
 
 
