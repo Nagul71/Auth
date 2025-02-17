@@ -137,13 +137,23 @@ export const Forgot = async (req, res) => {
 
         const mailOptions = {
             to: email,
-            subject: "password Reset Request",
+            subject: "🔐 Reset Your Password - Action Required",
             html: `
-                <p>You requested a password reset.</p>
-                <p>Click <a href="${resetLink}" target="_blank" style="color: blue; text-decoration: underline;">here</a> to reset your password.</p>
-                <p>This link is valid for 1 hour.</p>
+                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
+                    <h2 style="color: #333; text-align: center;">🔑 Password Reset Request</h2>
+                    <p>Hello,</p>
+                    <p>We received a request to reset your password. If this was you, click the button below to proceed:</p>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <a href="${resetLink}" target="_blank" style="display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 20px; font-size: 16px; font-weight: bold; text-decoration: none; border-radius: 5px;">Reset Password</a>
+                    </div>
+                    <p>If you didn’t request this, you can safely ignore this email. Your password will remain unchanged.</p>
+                    <p style="color: #888; font-size: 12px;">This link is valid for <strong>1 hour</strong>. For security reasons, do not share this email with anyone.</p>
+                    <hr style="border: none; border-top: 1px solid #ddd;">
+                    <p style="text-align: center; color: #555; font-size: 14px;">Need help? Contact our support team.</p>
+                </div>
             `,
         };
+        
 
 
         // Attempt to send email
